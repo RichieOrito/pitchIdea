@@ -5,7 +5,6 @@ from .import main
 from .. import db
 from ..models import User, Pitch, Comments, PitchCategory, Votes
 
-#Display categories on the landing page
 
 @main.route('/')
 def index():
@@ -20,8 +19,6 @@ def index():
     title = 'Home- Welcome'
     return render_template('index.html', title = title, categories=all_category, all_pitches=all_pitches)
 
-
-#Route for adding a new pitch
 
 @main.route('/category/new-pitch/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -75,8 +72,6 @@ def new_category():
     return render_template('new_category.html', category_form = form, title = title)
 
 
-#View single pitch alongside its comments
-
 @main.route('/view-pitch/<int:id>', methods=['GET', 'POST'])
 @login_required
 def view_pitch(id):
@@ -95,7 +90,6 @@ def view_pitch(id):
     count_dislikes = Votes.query.filter_by(pitches_id=id, vote=2).all()
     return render_template('view-pitch.html', pitches = pitches, comment = comment, count_likes=len(count_likes), count_dislikes=len(count_dislikes), category_id = id, categories=all_category)
 
-#Adding a comment
 
 @main.route('/write_comment/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -120,8 +114,6 @@ def post_comment(id):
     return render_template('post_comment.html', comment_form = form, title = title)
 
 
-#Routes upvoting/downvoting pitches
-
 @main.route('/pitch/upvote/<int:id>&<int:vote_type>')
 @login_required
 def upvote(id,vote_type):
@@ -137,15 +129,15 @@ def upvote(id,vote_type):
     if not votes:
         new_vote = Votes(vote=vote_type, user_id=current_user.id, pitches_id=id)
         new_vote.save_vote()
-        print('YOU HAVE new VOTED')
+        print('you have a new vote')
 
     for vote in votes:
         if f'{vote}' == to_str:
-            print('YOU CANNOT VOTE MORE THAN ONCE')
+            print('cannot vote more than once')
             break
         else:   
             new_vote = Votes(vote=vote_type, user_id=current_user.id, pitches_id=id)
             new_vote.save_vote()
-            print('YOU HAVE VOTED')
+            print('you have already voted')
             break
     return redirect(url_for('.view_pitch', id=id))
