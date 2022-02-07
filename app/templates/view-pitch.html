@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+ {% import 'macros.html' as macro%}
+
+{%block styles%}
+  {{ super() }}
+{%endblock%}
+
+<!-- content block -->
+{% block content %}
+<div class="container">
+     <div class="col-md-12">
+        <p class="text-left"><a class="btn btn-info" href="{{url_for('.new_pitch',id=pitches.category_id)}}">Post A Pitch</a></p>
+        <div class="well" style="background-color:#d0d1cb">
+          <h3>{{pitches.content}}</h3>
+        </div>
+
+        <!-- comments -->
+        <div class="col-md-6 col-offset-1">
+          <table>
+            <tr>
+              <td><h4 class="text-left"><a class="btn btn-round" href="{{url_for('.upvote',id=pitches.id,vote_type=1)}}">Upvote <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">{{count_likes}}</span>  </a></h4></td>
+              <td>&nbsp;</td>
+              <td><h4 class="text-left"><a class="btn btn-round" href="{{url_for('.upvote',id=pitches.id,vote_type=2)}}">Downvote <span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> {{count_dislikes}} </a></h4></td>
+              <td>&nbsp;</td>
+              <td><h4 class="text-right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Comments <a class="btn btn-secondary" href="{{url_for('.post_comment',id=pitches.id)}}"> Add your comment</a></h4></td>
+            </tr>
+          </table>
+
+
+
+         {% if comment %}
+         {{ macro.displaySpecificPitch(comment)}}
+         <hr>
+         {%else%}
+         <h3 class="text-center" style="color:rgb(138, 37, 121);">No Comments </h3>
+         {% endif %}
+        </div>
+
+    </div>
+  </div>
+
+{% endblock %}
