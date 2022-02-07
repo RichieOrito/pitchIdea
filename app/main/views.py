@@ -1,203 +1,150 @@
-from flask import render_template, request, redirect, url_for,flash,current_app as app
-from ..models import User, Role, Post, Comment, Subscribe
-from .forms import LoginForm, EditPostForm, SignUpForm, SubscribeForm
-from flask_login import login_user, current_user, login_required, logout_user
-from ..import db, photos
-from ..auth import OAuthSignIn
-from flask_user import UserManager, roles_required, roles_accepted
-from datetime import datetime
-import time
-from ..email import mail_message
-import markdown2
-from . import main
+from flask import render_template, request, redirect, url_for, abort
+from flask_login import login_required, current_user
+from . forms import PitchForm, CommentForm, CategoryForm
+from .import main
+from .. import db
+from ..models import User, Pitch, Comments, PitchCategory, Votes
 
+#Display categories on the landing page
 
-# Views
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/')
 def index():
-
     """
-    View root page function that returns the index page and
-    its data
+    View root page function that returns index page
     """
 
-    subscribe_form = SubscribeForm()
+    all_category = PitchCategory.get_categories()
+    all_pitches = Pitch.query.order_by('-id').all()
+    print(all_pitches)
 
-    def date_to_local(utc_datetime):
-        now_timestamp = time.time()
-        offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
-        return utc_datetime + offset
-
-    user = User.query.filter_by(username=app.config['ADMIN_USERNAME']).first()
-    
-    page =request.args.get('page',1, type=int)
-    max_page =app.config['POSTS_PER_PAGE']
-    posts = Post.query.order_by(Post.time_updated.desc()).paginate(page, max_page, False)
-
-    next_url = url_for('main.index', page=posts.next_num) \
-        if posts.has_next else None
-    prev_url = url_for('main.index', page=posts.prev_num) \
-        if posts.has_prev else None
-    return render_template('index.html',Comment = Comment,subscribe_form=subscribe_form,date_to_local=date_to_local,user=user, posts = posts.items, next_url = next_url, prev_url = prev_url)
+    title = 'Home- Welcome'
+    return render_template('index.html', title = title, categories=all_category, all_pitches=all_pitches)
 
 
-@main.route('/subscribe',methods=['GET','POST'])
-def subscribe():
-    form = SubscribeForm()
-    if form.validate_on_submit():
-        user = Subscribe(email = form.email.data)
-        db.session.add(user)
-        db.session.commit()
+#Route for adding a new pitch
 
-        flash("You have been subscribed successfully", "success")
-    else:
-        flash("No email provided", "warning")
-
-    return redirect(url_for('main.index'))
-
-
-@main.route('/signup',methods=['GET','POST'])
-def register():
-
-    form = SignUpForm()
-    
-    if form.validate_on_submit():
-        user = User(name = form.name.data, email = form.email.data, username = form.username.data, password=form.password.data)
-        user.role.append(Role(role_name='User'))
-        db.session.add(user)
-        db.session.commit()
-        mail_message("Welcome to Blog Some", "email/welcome_user", user.email, user = user)
-
-        return redirect(url_for('main.login'))
-
-    if current_user.is_authenticated:
-        return redirect (url_for('main.index'))
-
-    return render_template('register.html',signupform = form)
-
-
-@main.route('/login',methods=['GET','POST'])
-def login():
-
-    login_form = LoginForm()
-
-    if login_form.validate_on_submit():
-        user = User.query.filter_by(username=login_form.username.data).first()
-        
-        if user is not None and user.verify_password(login_form.password.data):
-            login_user(user)
-            return redirect(request.args.get('next') or url_for('main.index'))
-
-        flash('Invalid username or Password','danger')
-
-    if current_user.is_authenticated:
-        return redirect (url_for('main.index'))
-
-    return render_template('login.html', login_form = login_form)
-
-
-@main.route('/edit/<post_id>',methods=['GET','POST'])
+@main.route('/category/new-pitch/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit(post_id):
-    post = Post.query.filter_by(id = post_id).first()
-    form = EditPostForm()
-    form.content.data = post.content
+def new_pitch(id):
+    """
+    Function to check Pitches form and fetch data from the fields 
+    """
+    
+    form = PitchForm()
+    category = PitchCategory.query.filter_by(id=id).first()
+
+    if category is None:
+        abort(404)
 
     if form.validate_on_submit():
-        Post.query.filter_by(id = post_id).update(dict(title = form.title.data, content = form.content.data))
+        content = form.content.data
+        new_pitch= Pitch(content=content, category_id = category.id, user_id = current_user.id)
+        new_pitch.save_pitch()
+        return redirect(url_for('.category', id=category.id))
 
-        db.session.commit()
-        flash("Post edited \n Edit Again ?","success")
-        return redirect(url_for('main.edit',post_id = post.id))
-
-    return render_template('edit_post.html',post = post, form = form)
+    return render_template('new_pitch.html', pitch_form=form, category=category)
 
 
-@main.route('/delete/<post_id>',methods=['GET','POST'])
+@main.route('/categories/<int:id>')
+def category(id):
+    category = PitchCategory.query.get(id)
+    if category is None:
+        abort(404)
+
+    pitches=Pitch.get_pitches(id)
+    return render_template('category.html', pitches=pitches, category=category)
+
+
+@main.route('/add/category', methods=['GET','POST'])
 @login_required
-def delete(post_id):
+def new_category():
+    """
+    View new group route function that returns a page with a form to create a category
+    """
     
-    try:
-        post = Post.query.filter(Post.id == post_id).delete()
-        db.session.commit()
-        flash("Post deleted","warning")
-    except:
-        flash("Post not deleted","danger")
-        return redirect(url_for('main.index'))
-    return redirect(url_for('main.index'))
+    form = CategoryForm()
+
+    if form.validate_on_submit():
+        name = form.name.data
+        new_category = PitchCategory(name = name)
+        new_category.save_category()
+
+        return redirect(url_for('.index'))
+
+    title = 'New category'
+    return render_template('new_category.html', category_form = form, title = title)
 
 
-@main.route('/deletecomment/<comment_id>',methods=['GET','POST'])
+#View single pitch alongside its comments
+
+@main.route('/view-pitch/<int:id>', methods=['GET', 'POST'])
 @login_required
-def deletecomment(comment_id):
+def view_pitch(id):
+    """
+    Function the returns a single pitch for a comment to be added
+    """
+    all_category = PitchCategory.get_categories()
+    pitches = Pitch.query.get(id)
+    # pitches = Pitch.query.filter_by(id=id).all()
 
-    try:
-        comment = Comment.query.filter(Comment.id == comment_id).delete()
-        db.session.commit()
-        flash("Comment deleted","info")
-    except:
-        flash("Comment not deleted","danger")
-        return redirect(url_for('main.index'))
-    return redirect(url_for('main.index'))
+    if pitches is None:
+        abort(404)
 
+    comment = Comments.get_comments(id)
+    count_likes = Votes.query.filter_by(pitches_id=id, vote=1).all()
+    count_dislikes = Votes.query.filter_by(pitches_id=id, vote=2).all()
+    return render_template('view-pitch.html', pitches = pitches, comment = comment, count_likes=len(count_likes), count_dislikes=len(count_dislikes), category_id = id, categories=all_category)
 
-@main.route('/logout')
+#Adding a comment
+
+@main.route('/write_comment/<int:id>', methods=['GET', 'POST'])
 @login_required
-def logout():
-
-    logout_user()
-    return redirect(url_for('main.index'))
-
-
-@main.route('/post=<post_id>/comment/<user> ',methods=['GET','POST'])
-@login_required
-def comment(post_id,user):
-
-    comment = request.form['user-comment']
-    usern = User.query.filter_by(username = user).first()
+def post_comment(id):
+    """ 
+    Function to post comments 
+    """
     
-    if usern and comment:
-        user_comment = Comment(comment_content = comment)
-        user_comment.user_id=usern.id
-        user_comment.post_id=post_id
-        db.session.add(user_comment)
-        db.session.commit()
+    form = CommentForm()
+    title = 'post comment'
+    pitches = Pitch.query.filter_by(id=id).first()
 
-    return redirect (url_for('main.index'))
+    if pitches is None:
+         abort(404)
 
+    if form.validate_on_submit():
+        opinion = form.opinion.data
+        new_comment = Comments(opinion = opinion, user_id = current_user.id, pitches_id = pitches.id)
+        new_comment.save_comment()
+        return redirect(url_for('.view_pitch', id = pitches.id))
 
-@main.route('/authorize/<provider>')
-def Oauth_authorize(provider):
-
-    if not current_user.is_anonymous:
-        return redirect(url_for('index'))
-    oauth = OAuthSignIn.get_provider(provider)
-    return oauth.authorize()
+    return render_template('post_comment.html', comment_form = form, title = title)
 
 
-@main.route('/callback/<provider>')
-def oauth_callback(provider):
+#Routes upvoting/downvoting pitches
 
-    if not current_user.is_anonymous:
-        return redirect(url_for('index'))
-    oauth = OAuthSignIn.get_provider(provider)
-    username, email = oauth.callback()
-    if email is None:
-        flash('Authentication failed.','danger')
-        return redirect(url_for('index'))
-    user=User.query.filter_by(email=email).first()
-    
-    if not user:
-        name = username
-        user_name = username
-        if user_name is None or user_name == "":
-            user_name = email.split('@')[0]
-            name = user_name
+@main.route('/pitch/upvote/<int:id>&<int:vote_type>')
+@login_required
+def upvote(id,vote_type):
+    """
+    View function that adds one to the vote_number column in the votes table
+    """
+    # Query for user
+    votes = Votes.query.filter_by(user_id=current_user.id).all()
+    print(f'The new vote is {votes}')
+    to_str=f'{vote_type}:{current_user.id}:{id}'
+    print(f'The current vote is {to_str}')
 
-        user=User(name = name,username = user_name, email=email)
-        user.roles.append(Role(role_name = 'User'))
-        db.session.add(user)
-        db.session.commit()
+    if not votes:
+        new_vote = Votes(vote=vote_type, user_id=current_user.id, pitches_id=id)
+        new_vote.save_vote()
+        print('YOU HAVE new VOTED')
 
-    login_user(user, remember=True)
-    return redirect(url_for('main.index'))
+    for vote in votes:
+        if f'{vote}' == to_str:
+            print('YOU CANNOT VOTE MORE THAN ONCE')
+            break
+        else:   
+            new_vote = Votes(vote=vote_type, user_id=current_user.id, pitches_id=id)
+            new_vote.save_vote()
+            print('YOU HAVE VOTED')
+            break
