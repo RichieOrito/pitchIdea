@@ -1,0 +1,77 @@
+{% macro displayPost(posts_list) %}
+	{% for post in posts_list %}
+		<div class="well leftcolumn">
+			<div class="main-post">
+				<span class="content-l">
+				<h2>{{post.title}}</h2>
+				<h5>Posted on:
+					<em>{{ date_to_local(post.time_updated) }}</em>
+				</h5>
+				<p>{{ post.content}}</p>
+			</span>
+
+			<span class="image-r">
+				<img width="100%" height="40%" src="{{url_for('static',filename=post.pic_path)}}" alt="" class="img-rounded">
+			</span>
+
+				{% if current_user.is_authenticated %}
+				{% if current_user.has_roles('Admin') %}
+
+				<form action="{{url_for('main.edit', post_id=post.id)}}">
+					<button type="submit" class="btn btn-default btn-sm">
+						<span class="glyphicon glyphicon-pencil"></span>
+						Edit
+					</button>
+				</form>
+
+				<form action="{{url_for('main.delete', post_id=post.id)}}">
+					<button type="submit" class="btn btn-default btn-sm">
+						<span class="glyphicon glyphicon-trash"></span>
+						Delete
+					</button>
+				</form>
+
+				{% endif %}
+				{% endif %}
+
+			</div>
+			<div class='post-comments'>
+				<span style="display:inline">
+					<form action="{{url_for('main.comment', post_id=post.id, user=current_user.username)}}" method="post" class="form-group">
+						<input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
+						<textarea class="form-textarea" rows="2" cols="30" name='user-comment' placeholder="Leave a comment" required="required"></textarea>
+						{%  if current_user.is_anonymous %}
+						<input class="btn btn-primary" type="submit" value="post" disabled>
+						{% else %}
+						<input class="btn btn-primary" type="submit" value="post">
+						{% endif %}
+					</form>
+				</span>
+				<span>
+					{% if post.comments %}
+						<p>
+							{% for comment in Comment.query.filter_by(post_id=post.id).order_by(Comment.time_created.desc()).all() %}
+								<div class="well">
+								<b>{{ comment.user_post }}</b> commented:
+								<p>{{ comment.comment_content }}</p>
+
+								{% if current_user.is_authenticated %}
+								{% if current_user.has_roles('Admin') %}
+                                
+								<form action="{{url_for('main.deletecomment', comment_id=comment.id)}}">
+									<button type="submit" class="btn btn-default btn-sm">
+										<span class="glyphicon glyphicon-trash"></span>
+										Delete
+									</button>
+								</form>
+								{% endif %}
+								{% endif %}
+							</div>
+							{% endfor %}
+						</p>
+					{% endif %}
+				</span>
+			</div>
+		</div>
+	{% endfor %}
+{% endmacro %}
