@@ -148,3 +148,4 @@ def upvote(id,vote_type):
             new_vote.save_vote()
             print('YOU HAVE VOTED')
             break
+    return redirect(url_for('.view_pitch', id=id))
