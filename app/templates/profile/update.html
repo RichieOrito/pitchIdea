@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block styles%}
+  {{ super() }}
+  <link rel="stylesheet" href="{{url_for('static',filename='css/external.css')}}">
+{% endblock %}
+
+
+{% block content %}
+  <div class="center-block well">
+    <label class="label-tag center-block">UPDATE YOUR BIO</label>
+
+    {% with messages = get_flashed_messages(with_categories = true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="center-block text-center alert alert-{{category}} alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h3>{{ message }}</h3>
+        </div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('admin.update_profile',uname=user.username)}}" method="post">
+      {{ bioform.hidden_tag() }}
+
+      {% for error in bioform.bio.errors %}
+        {% if error %}
+          <span class="alert alert-danger" role="alert">
+            {{error}}
+          </span>
+        {% endif %}
+      {% endfor %}
+
+      {{bioform.bio(class_="form-control",id="text-line",rows='10')}}
+      {{bioform.submit(class_="btn btn-primary btn1 btn-p")}}
+
+    </form>
+  </div>
+{% endblock %}
