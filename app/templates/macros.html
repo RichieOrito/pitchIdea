@@ -1,77 +1,62 @@
-{% macro displayPost(posts_list) %}
-	{% for post in posts_list %}
-		<div class="well leftcolumn">
-			<div class="main-post">
-				<span class="content-l">
-				<h2>{{post.title}}</h2>
-				<h5>Posted on:
-					<em>{{ date_to_local(post.time_updated) }}</em>
-				</h5>
-				<p>{{ post.content}}</p>
-			</span>
+{% macro displayCategoryList(category_list) %} 
+    {% for category in category_list %}
+    
+        <li><a href="{{url_for('.category',id=category.id)}}">
+            {{category.name|upper}}
+        </a>
+        </li>
+    {% endfor %} 
+{% endmacro %}
 
-			<span class="image-r">
-				<img width="100%" height="40%" src="{{url_for('static',filename=post.pic_path)}}" alt="" class="img-rounded">
-			</span>
+{% macro displayAllPitches(pitches) %}
+    {% for pitch in pitches %}
+        <div class="row my-pitches">
+            <div class="col-md-12">
+                <h4>{{pitch.user.username}}</h4>
+                <p>{{pitch.content}}</p>
+                <p><a class="btn btn-info" href="{{url_for('.post_comment',id=pitch.id)}}"> Add your comment</a></p>
+            </div>
+        </div>
+    {% endfor %}
+{% endmacro %}
 
-				{% if current_user.is_authenticated %}
-				{% if current_user.has_roles('Admin') %}
+{% macro displayPitches(pitch_list) %} 
+{% for pitches in pitch_list %}
+<div class="col-md-12">
+    <div class="well">
+        <div class="row">
+            <p>{{pitches.name|upper}}</p>
+            </a>
+            <div class="col-md-10 col-sm-12">
+                <h3>{{pitches.content}}</h3>
+                <h4>
+                    <span>
+                        <a href=" {{url_for('.view_pitch',id=pitches.id)}}">Read Comments</a>
+                    </span>
+                </h4>
 
-				<form action="{{url_for('main.edit', post_id=post.id)}}">
-					<button type="submit" class="btn btn-default btn-sm">
-						<span class="glyphicon glyphicon-pencil"></span>
-						Edit
-					</button>
-				</form>
+                <a href=" {{url_for('.post_comment',id=pitches.id)}}">
+                    <h4>COMMENT</h4>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %} 
+{% endmacro %} 
 
-				<form action="{{url_for('main.delete', post_id=post.id)}}">
-					<button type="submit" class="btn btn-default btn-sm">
-						<span class="glyphicon glyphicon-trash"></span>
-						Delete
-					</button>
-				</form>
+{% macro displaySpecificPitch(specific_pitch_list) %} 
+{% for comment in specific_pitch_list %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+    <hr>
+    <p style="color:rgb(37, 135, 138)">{{comment.opinion}} </p>
+    <p style="text-align:right; color:#d0d1cb; font-size:10px;">{{comment.time_posted.strftime('%Y/%m/%d || %r') }}</p>
+</div>
+{% endfor %} 
+{% endmacro %}
 
-				{% endif %}
-				{% endif %}
-
-			</div>
-			<div class='post-comments'>
-				<span style="display:inline">
-					<form action="{{url_for('main.comment', post_id=post.id, user=current_user.username)}}" method="post" class="form-group">
-						<input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
-						<textarea class="form-textarea" rows="2" cols="30" name='user-comment' placeholder="Leave a comment" required="required"></textarea>
-						{%  if current_user.is_anonymous %}
-						<input class="btn btn-primary" type="submit" value="post" disabled>
-						{% else %}
-						<input class="btn btn-primary" type="submit" value="post">
-						{% endif %}
-					</form>
-				</span>
-				<span>
-					{% if post.comments %}
-						<p>
-							{% for comment in Comment.query.filter_by(post_id=post.id).order_by(Comment.time_created.desc()).all() %}
-								<div class="well">
-								<b>{{ comment.user_post }}</b> commented:
-								<p>{{ comment.comment_content }}</p>
-
-								{% if current_user.is_authenticated %}
-								{% if current_user.has_roles('Admin') %}
-                                
-								<form action="{{url_for('main.deletecomment', comment_id=comment.id)}}">
-									<button type="submit" class="btn btn-default btn-sm">
-										<span class="glyphicon glyphicon-trash"></span>
-										Delete
-									</button>
-								</form>
-								{% endif %}
-								{% endif %}
-							</div>
-							{% endfor %}
-						</p>
-					{% endif %}
-				</span>
-			</div>
-		</div>
-	{% endfor %}
+{% macro displayCategory(category_list) %} 
+{% for category in category_list%}
+<a class="dropdown-item" href="{{url_for('.category',id=category.id)}}">{{category.name|upper}} </a>
+{% endfor %} 
 {% endmacro %}
