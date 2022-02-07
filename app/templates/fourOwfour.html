@@ -1,5 +1,28 @@
 {% extends 'base.html'%}
 
+{% block styles%}
+    {{ super() }}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/fourOwfour.css')}}">
+
+{% endblock %}
+
 {% block content %}
-    <h1>WHOOOPS we can't find that page</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-4">
+                <div class="error-template">
+                    <h1> Ooops!</h1>
+                    <h2> Page Not Found </h2>
+                    <div class="error-details">
+                        Sorry, But an error has occured, The Requested page was not found!
+                    </div>
+                </div>
+                <div class="error-actions">
+                    <br>
+                    <a href="/" class="btn btn-secondary btn-lg"><span class="glyphicon glyphicon-home"></span>Navigate Home</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}
