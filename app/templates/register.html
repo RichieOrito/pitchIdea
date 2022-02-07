@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{url_for('static',filename='css/util.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+{% endblock %}
+
+{% block content %}
+  <div class="container-login100">
+    <div class="wrap-login100 p-l-55 p-r-55 p-t-20 p-b-30">
+
+      <form action="/signup" method="post" class="login100-form validate-form">
+        <span class="login100-form-title p-b-37">
+          Sign Up
+        </span>
+
+        {{ signupform.hidden_tag() }}
+
+        {% for error in signupform.name.errors %}
+          {% if error %}
+            <span class="alert alert-danger" role="alert">
+              {{error}}
+            </span>
+          {% endif %}
+        {% endfor %}
+        <div class="wrap-input100 validate-input m-b-20" data-validate="Kindy input username or email">
+          {{signupform.name(class_="input100",placeholder="Name")}}
+          <span class="focus-input100"></span>
+        </div>
+
+        {% for error in signupform.username.errors %}
+          {% if error %}
+            <span class="alert alert-danger" role="alert">
+              {{error}}
+            </span>
+          {% endif %}
+        {% endfor %}
+        <div class="wrap-input100 validate-input m-b-20" data-validate="Kindy input username or email">
+          {{signupform.username(class_="input100",placeholder="Username")}}
+          <span class="focus-input100"></span>
+        </div>
+
+        {% for error in signupform.email.errors %}
+          {% if error %}
+            <span class="alert alert-danger" role="alert">
+              {{error}}
+            </span>
+          {% endif %}
+        {% endfor %}
+        <div class="wrap-input100 validate-input m-b-20" data-validate="Kindy input username or email">
+          {{signupform.email(class_="input100",placeholder="Email")}}
+          <span class="focus-input100"></span>
+        </div>
+
+        {% for error in signupform.password.errors %}
+          {% if error %}
+            <span class="alert alert-danger" role="alert">
+              {{error}}
+            </span>
+          {% endif %}
+        {% endfor %}
+        <div class="wrap-input100 validate-input m-b-20" data-validate="Kindy input username or email">
+          {{signupform.password(class_="input100",placeholder="Password")}}
+          {{signupform.password_confirm(class_="input100",placeholder="Kindly Confirm password")}}
+          <span class="focus-input100"></span>
+        </div>
+
+        <div class="container-login100-form-btn">
+          {{signupform.submit(class_="login100-form-btn",value='submit')}}
+        </div>
+
+        <div class="text-center p-t-30 p-b-10">
+          <span class="txt1">
+            Or continue with
+          </span>
+        </div>
+
+        <div class="flex-c p-b-10">
+          <a href="{{ url_for('main.Oauth_authorize', provider='google')}}" class="login100-social-item">
+            <img src="{{url_for('static',filename='images/icon-google.png')}}" alt="GOOGLE">
+          </a>
+        </div>
+
+        <div class="text-center">Do You Already have an account?
+          <a href="/login" class="txt2 hov1">
+            Sign In
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+{% endblock %}
