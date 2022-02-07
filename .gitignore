@@ -1,0 +1,4 @@
+virtual/
+start.sh
+.vscode/
+*.py
