@@ -1,106 +1,21 @@
-{% extends 'base.html'%}
-
-{% import 'macros.html' as macro with context %}
-
-{% block scripts %}
-{{ super() }}
-<script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% extends 'base.html'%} 
+{% import 'macros.html' as macro %} 
+{% block content%}
+<div class="container">
+  <div class="row home-pitches">
+    <div class="col-md-3">
+      <h4 class="text-left">
+        <a class="btn btn-primary" href="/add/category">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add A Category </a>
+      </h4>
+      <ol class="category-list">
+        {{ macro.displayCategoryList(categories) }}
+      </ol>
+    </div>
+    <div class="col-md-9 all-pitches">
+      <h2>All Pitches</h2>
+      {{macro.displayAllPitches(all_pitches)}}
+    </div>
+  </div>
+</div>
 {% endblock %}
-
-{% block content %}
-
-    {% with messages = get_flashed_messages(with_categories = true)%}
-    {% if messages %}
-        {% for category, message in messages%}
-        <div class="message text-center alert alert-{{category}} alert-dismissible" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span></button>
-            <h3>{{ message }}</h3>
-          </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <div class="sidenav text-center">
-        <h1>Riisherd Orito</h1>
-        <h3>{{user.username}}</h3>
-        <hr>
-        {% if user.profile_pic_path %}
-            <img src="{{url_for('static',filename='images/avatar.png')}}" alt="no profile image" class="img-rounded">
-            {%else%}
-            <img src="{{url_for('static',filename='images/avatar.png')}}" alt="no profile image" class="img-rounded">
-        {% endif %}
-
-        {% if user.bio %}
-        <p>
-            {{ user.bio}}
-        </p>
-        {%else%}
-        <p>Bio not available</p>
-        {% endif %}
-    </div>
-
-    <div class="row">
-        {{ macro.displayPost(posts) }}
-    </div>
-
-    <div class="clearfix"></div>
-    <ul class="pagination pull-right">
-        {% if prev_url %}
-            <li>
-            <a href="{{ prev_url }}">
-                <i class="fas fa-chevron-left"></i>
-                Newer Posts
-            </a>
-            </li>
-        {% endif % }
-        {% if next_url %}
-            <li>
-                <a href="{{ next_url }}">
-                Older Posts
-                <i class="fas fa-chevron-right"></i>
-                </a>
-            </li>
-        {% endif %}
-    </ul>
-
-    <div class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">SUBSCRIBE</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-
-            <div class="modal-body">
-            <form action="/subscribe" method="post" id="subscribe-form">
-                {{ subscribe_form.hidden_tag() }}
-                <div class="input-group">
-                <span class="input-group-addon">EMAIL</span>
-                {{subscribe_form.email(class_="form-control",id='email-s',placeholder="Kindy input your username")}}
-
-                {% for error in subscribe_form.email.errors %}
-                    {% if error %}
-                    <span class="alert alert-danger" role="alert">
-                        {{error}}
-                    </span>
-                    {% endif %}
-                {% endfor %}
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                {{subscribe_form.submit(class_="btn btn-primary btn1",id='submit-s')}}
-            </div>
-            </form>
-        </div>
-        </div>
-    </div>
-
-    <div class="footer">
-        <button type="button" id="subscribe" class="btn btn-default btn1 label-tag">Subscribe to receive new notifications</button>
-    </div>
-{% endblock %}  
-            
