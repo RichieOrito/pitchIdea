@@ -22,7 +22,7 @@
 <p>
 
 * A user can pick a category/add theirs and be able to pitch an idea on any category they are interested in.
-* Uses upvotes and downvotes.
+* Can upvote and downvote a comment.
 
 </p>
 
@@ -49,9 +49,11 @@ it on your own repository.
 requirements form 
 ---
 `requirements.txt`
+***
 
 
-```$ python3 -m venv virtual
+```
+$ python3 -m venv virtual
 $ . virtual/bin/activate
 $ pip install -r requirements.txt
 ```
