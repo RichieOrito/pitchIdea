@@ -13,7 +13,7 @@ def index():
     """
 
     all_category = PitchCategory.get_categories()
-    all_pitches = Pitch.query.order_by('-id').all()
+    all_pitches = Pitch.query.order_by('id').all()
     print(all_pitches)
 
     title = 'Home- Welcome'
@@ -80,7 +80,6 @@ def view_pitch(id):
     """
     all_category = PitchCategory.get_categories()
     pitches = Pitch.query.get(id)
-    # pitches = Pitch.query.filter_by(id=id).all()
 
     if pitches is None:
         abort(404)
@@ -120,7 +119,6 @@ def upvote(id,vote_type):
     """
     View function that adds one to the vote_number column in the votes table
     """
-    # Query for user
     votes = Votes.query.filter_by(user_id=current_user.id).all()
     print(f'The new vote is {votes}')
     to_str=f'{vote_type}:{current_user.id}:{id}'

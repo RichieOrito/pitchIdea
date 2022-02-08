@@ -42,6 +42,7 @@
         </div>
     </div>
 </div>
+
 {% endfor %} 
 {% endmacro %} 
 
@@ -49,8 +50,8 @@
 {% for comment in specific_pitch_list %}
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
     <hr>
-    <p style="color:rgb(37, 135, 138)">{{comment.opinion}} </p>
-    <p style="text-align:right; color:#d0d1cb; font-size:10px;">{{comment.time_posted.strftime('%Y/%m/%d || %r') }}</p>
+    <p style="color:rgb(12, 175, 145)">{{comment.opinion}} </p>
+    <p style="text-align:right; color: grey; font-size:10px;">{{comment.time_posted.strftime('%Y/%m/%d || %r') }}</p>
 </div>
 {% endfor %} 
 {% endmacro %}

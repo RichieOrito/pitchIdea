@@ -7,21 +7,13 @@ from . import db
 
 @login_manager.user_loader
 def load_user(user_id):
-    """
-    @login_manager.user_loader Passes in a user_id to this function
-    Function queries the database and gets a user's id as a response
-    """
+  
     return User.query.get(int(user_id))
 
 
 class User(UserMixin,db.Model):
-    """ 
-    class modelling the users 
-    """
-
+    
     __tablename__='users'
-
-    #Creating the columns
 
     id = db.Column(db.Integer,primary_key = True)
     username = db.Column(db.String(255))
@@ -34,8 +26,6 @@ class User(UserMixin,db.Model):
     comment = db.relationship("Comments", backref="user", lazy = "dynamic")
     vote = db.relationship("Votes", backref="user", lazy = "dynamic")
 
-
-    # Securing passwords
     @property
     def password(self):
         raise AttributeError('You can not read the password Attribute')
@@ -54,17 +44,16 @@ class User(UserMixin,db.Model):
         return f'User {self.username}'
 
 
-#Category model
 class PitchCategory(db.Model):
 
     __tablename__ = 'categories'
 
-    # table columns
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     description = db.Column(db.String(255))
 
-    # save pitches
+
     def save_category(self):
         db.session.add(self)
         db.session.commit()
@@ -74,7 +63,7 @@ class PitchCategory(db.Model):
         categories = PitchCategory.query.all()
         return categories
 
-#Pitches class
+
 class Pitch(db.Model):
     """
     List of pitches in each category 
@@ -90,7 +79,6 @@ class Pitch(db.Model):
     vote = db.relationship("Votes", backref="pitches", lazy = "dynamic")
 
 
-
     def save_pitch(self):
         """
         Save the pitches 
@@ -102,15 +90,11 @@ class Pitch(db.Model):
     def clear_pitches(cls):
         Pitch.all_pitches.clear()
 
-    # Display pitches
 
     def get_pitches(id):
         pitches = Pitch.query.filter_by(category_id=id).all()
         return pitches
 
-
-
-# Comments
 class Comments(db.Model):
     """
     User comment model for each pitch 
@@ -118,7 +102,6 @@ class Comments(db.Model):
 
     __tablename__ = 'comments'
 
-    # Add columns
     id = db.Column(db. Integer, primary_key=True)
     opinion = db.Column(db.String(255))
     time_posted = db.Column(db.DateTime, default=datetime.utcnow)
@@ -138,9 +121,6 @@ class Comments(db.Model):
         comment = Comments.query.order_by(Comments.time_posted.desc()).filter_by(pitches_id=id).all()
         return comment
 
-
-
-#Votes
 class Votes(db.Model):
     """
     class to model votes

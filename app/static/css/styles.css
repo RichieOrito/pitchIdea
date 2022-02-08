@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+    font-family: 'Acme', sans-serif;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    scroll-padding-top: 4rem;
+    list-style: none;
+    text-decoration: none;
+}
+
+ol.category-list {
+    list-style-type: none;
+}
+.my-pitches{
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(94, 94, 94, 0.726);
+    border-radius: 7px;
+}
+.all-pitches h2{
+    display: flex;
+    justify-content: center;
+}
+
+.well{
+    text-align: center;
+    text-decoration: underline;
+    font-weight: 900;
+}
+
+.dash{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.all-pitches{
+    transition: all 300ms;
+    width: 300px;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.login{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}

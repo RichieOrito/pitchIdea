@@ -9,9 +9,9 @@ from flask_migrate import Migrate, MigrateCommand
 app = create_app('development')
 
 manager = Manager(app)
-manager.add_command('server', Server)
-
 migrate = Migrate(app, db)
+
+manager.add_command('server', Server)
 manager.add_command('db', MigrateCommand)
 
 @manager.command
@@ -24,10 +24,9 @@ def test():
 	unittest.TextTestRunner(verbosity=2).run(tests)
 
 
-
 @manager.shell
 def make_shell_context():
-	return dict(app = app, db = db, User = User, Pitch = Pitch, Comments= Comments, PitchCategory=PitchCategory)
+	return dict(app = app, db = db, User = User,  Pitch = Pitch, Comments=Comments, PitchCategory=PitchCategory)
 
 
 if __name__ == '__main__':
