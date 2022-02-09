@@ -21,6 +21,14 @@ ol.category-list {
     margin-bottom: 1rem;
     border: 1px solid rgba(94, 94, 94, 0.726);
     border-radius: 7px;
+    background-color: #146356;
+}
+
+.my-pitches h4{
+    color: #fff;
+}
+.my-pitches p{
+    color: #A3DA8D;
 }
 .all-pitches h2{
     display: flex;
