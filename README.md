@@ -15,7 +15,9 @@
 
 ## Description
 
-<p>A web application where users can search search for articles according to the source name.</p>
+<p>A web application that allows users to pitch an idea. The users will submit their one minute pitches and other users will vote on them and leave comments to give their feedback on them.
+
+The pitches are organized by category. .</p>
 
 ## Behaviour Driven Development
 
