@@ -27,7 +27,7 @@ class Config:
 
 class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
-    'postgresql://lqeiipmerxmova:57187b08eee8f9cf3a474bc19c4a096de26286fb574109e9fe04bf46af7e5515@ec2-34-233-157-189.compute-1.amazonaws.com:5432/d1lmlnudcaqafe'
+    
     pass
 
 class DevConfig(Config):
